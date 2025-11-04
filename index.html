@@ -1,150 +1,162 @@
-import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, BookOpen } from 'lucide-react'
-import { useState, useEffect } from 'react'
-
-const testimonials = [
-  {
-    name: 'Rudi – Staf Administrasi',
-    text: 'Saya bukan orang IT, tapi sekarang laporan kantor bisa terkirim otomatis tiap pagi. Hidup jadi jauh lebih ringan.',
-  },
-  {
-    name: 'Dina – Analis Data Junior',
-    text: 'Awalnya saya kira Python itu cuma buat programmer. Tapi penjelasan di ebook ini ringan banget, dan langsung bisa saya pakai di kerjaan kantor.',
-  },
-  {
-    name: 'Rama – Freelancer',
-    text: 'Setelah pakai ebook ini, saya hemat hampir 3 jam kerja setiap hari. Serius, ini game changer!',
-  },
-  {
-    name: 'Agus – Admin Perusahaan',
-    text: 'Ini bukan cuma buku, tapi pintu masuk ke dunia kerja yang lebih efisien dan cerdas.',
-  }
-]
-
-export default function KerjaanBeresLanding() {
-  const [index, setIndex] = useState(0)
-
-  const nextTestimonial = () => setIndex((index + 1) % testimonials.length)
-  const prevTestimonial = () => setIndex((index - 1 + testimonials.length) % testimonials.length)
-
-  // Auto slide testimonial every 5 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [])
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-100 text-slate-800">
-      {/* HERO SECTION */}
-      <section className="text-center py-20 px-6 max-w-4xl mx-auto">
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl md:text-6xl font-bold mb-6">
-          Kerjaan Beres, Hidup Lebih Cerdas 🚀
-        </motion.h1>
-        <p className="text-lg md:text-xl text-slate-600 mb-8">
-          Ubah komputer kamu jadi <span className="font-semibold text-slate-900">asisten digital pribadi</span> yang kerja 24 jam tanpa lelah — tanpa perlu jadi programmer sama sekali.
-        </p>
-        <Button size="lg" className="text-lg px-8 py-6 bg-emerald-600 hover:bg-emerald-700">
-          📘 Dapatkan Sekarang
-        </Button>
-      </section>
-
-      {/* MASALAH SECTION */}
-      <section className="bg-white py-16 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8">Pernah merasa begini?</h2>
-          <div className="grid md:grid-cols-2 gap-6 text-left">
-            <Card><CardContent className="p-6">📂 Rename ratusan file setiap minggu.</CardContent></Card>
-            <Card><CardContent className="p-6">📊 Copy-paste data dari Excel tanpa henti.</CardContent></Card>
-            <Card><CardContent className="p-6">📧 Kirim laporan rutin yang sama tiap hari.</CardContent></Card>
-            <Card><CardContent className="p-6">😩 Waktu habis buat kerjaan kecil yang nggak pernah selesai.</CardContent></Card>
-          </div>
-          <p className="mt-8 text-slate-600 max-w-2xl mx-auto">Masalahnya bukan di kamu — tapi di <strong>cara kita bekerja</strong>. Sekarang saatnya biarkan komputer kerja untukmu ☕💼</p>
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Private Coding — 1-Stop Landing (Online & Offline)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="Private 1:1 Coding — Online / Offline. Ramah pemula, trial, jadwal fleksibel." />
+  <style>
+    /* tiny custom tweaks for single-screen layout */
+    html,body,#app{height:100%}
+    .glass{backdrop-filter: blur(6px); background: rgba(255,255,255,0.6)}
+  </style>
+</head>
+<body class="bg-gradient-to-b from-slate-50 to-white flex items-center justify-center min-h-screen p-4">
+  <main id="app" class="w-full max-w-md mx-auto">
+    <section class="glass rounded-2xl shadow-lg p-6">
+      <!-- header -->
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-indigo-50">
+          <!-- simple icon -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3v18" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 12h18" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-      </section>
-
-      {/* SOLUSI SECTION */}
-      <section className="py-20 bg-slate-50 px-6 text-center">
-        <h2 className="text-3xl font-bold mb-4">Selamat datang di era kerja otomatis</h2>
-        <p className="text-slate-600 max-w-3xl mx-auto mb-10">
-          Dengan <strong>Ebook “Kerjaan Beres Sendiri”</strong>, kamu akan belajar cara membuat komputer:
-        </p>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          {["Merapikan file dan folder otomatis", "Mengolah data Excel tanpa buka aplikasinya", "Mengambil data dari internet otomatis", "Mengirim email & WhatsApp otomatis"].map((item, i) => (
-            <Card key={i}><CardContent className="p-6 text-slate-700 flex items-start gap-2"><CheckCircle className="text-emerald-500" /> {item}</CardContent></Card>
-          ))}
+        <div>
+          <h1 class="text-xl font-bold leading-tight">Belajar Coding. Langsung Ngerti. Langsung Bisa.</h1>
+          <p class="text-sm text-slate-600 mt-1">Private 1:1 — Online / Offline — Ramah Pemula · Trial 30–60 menit</p>
         </div>
-        <p className="mt-10 text-slate-600">💪 Tidak perlu background IT — cukup niat untuk kerja lebih cerdas.</p>
-      </section>
+      </div>
 
-      {/* BONUS & TESTIMONI */}
-      <section className="py-20 bg-white px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Apa yang akan kamu pelajari?</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-            {[
-              'Kenalan dengan Python & instalasi cepat',
-              'Otomatisasi file dan folder kerja',
-              'Bekerja dengan Excel tanpa buka aplikasinya',
-              'Web scraping sederhana',
-              'Email & notifikasi otomatis',
-              'Bonus: 4 script siap pakai & update gratis'
-            ].map((point, i) => (
-              <Card key={i}><CardContent className="p-6 flex gap-2 items-start"><BookOpen className="text-indigo-500" /> {point}</CardContent></Card>
-            ))}
+      <!-- value bullets -->
+      <ul class="mt-4 space-y-2 text-sm">
+        <li class="flex items-start gap-2"><span class="text-indigo-600 font-semibold">•</span> 100% pemula friendly — mulai tanpa install</li>
+        <li class="flex items-start gap-2"><span class="text-indigo-600 font-semibold">•</span> Materi praktis & project-based</li>
+        <li class="flex items-start gap-2"><span class="text-indigo-600 font-semibold">•</span> Jadwal fleksibel — online & offline</li>
+        <li class="flex items-start gap-2"><span class="text-indigo-600 font-semibold">•</span> Trial sebelum commit, pembayaran aman</li>
+      </ul>
+
+      <!-- CTA + proof -->
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <button id="openForm" class="col-span-2 block w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow">DAFTAR / TRIAL SEKARANG</button>
+        <div class="col-span-2 text-xs text-slate-600 mt-1">✓ 130+ peserta · usia 10 — profesional · dari berbagai kota</div>
+      </div>
+
+      <!-- 10-second flow -->
+      <div class="mt-4 p-3 rounded-lg bg-white border text-sm">
+        <strong>Alur 10 detik:</strong>
+        <ol class="list-decimal list-inside mt-2 text-slate-700">
+          <li>Klik daftar → isi form singkat</li>
+          <li>Admin WA confirm dalam 24 jam</li>
+          <li>Set jadwal → trial → mulai</li>
+        </ol>
+      </div>
+
+      <!-- trust -->
+      <div class="mt-3 text-xs text-slate-500">
+        Pembayaran: transfer bank / e-wallet. Pilih bayar per pertemuan atau paket 4x/8x.
+      </div>
+
+    </section>
+
+    <!-- modal form (inline) -->
+    <div id="formWrap" class="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 pointer-events-none">
+      <div class="pointer-events-auto w-full max-w-md">
+        <form id="signupForm" class="bg-white rounded-2xl shadow-2xl p-6" onsubmit="return handleSubmit(event)">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold">Form Pendaftaran Singkat</h2>
+            <button type="button" onclick="closeForm()" class="text-slate-400">✕</button>
           </div>
 
-          {/* TESTIMONIAL CAROUSEL */}
-          <div className="mt-20">
-            <h3 className="text-2xl font-semibold mb-8">Apa kata mereka?</h3>
-            <div className="relative max-w-3xl mx-auto">
-              <motion.div key={index} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.5 }} className="bg-slate-50 shadow-lg rounded-2xl p-8 min-h-[180px]">
-                <p className="text-slate-700 italic mb-4">“{testimonials[index].text}”</p>
-                <p className="font-semibold text-slate-900">— {testimonials[index].name}</p>
-              </motion.div>
-              <div className="flex justify-center gap-4 mt-6">
-                <Button variant="outline" size="sm" onClick={prevTestimonial}>⬅️ Sebelumnya</Button>
-                <Button variant="outline" size="sm" onClick={nextTestimonial}>Berikutnya ➡️</Button>
-              </div>
+          <p class="text-xs text-slate-500 mt-2">Isi singkat — admin akan hubungi via WA dalam 24 jam.</p>
 
-              {/* DOT NAVIGATION */}
-              <div className="flex justify-center gap-2 mt-6">
-                {testimonials.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setIndex(i)}
-                    className={`w-3 h-3 rounded-full ${i === index ? 'bg-emerald-600' : 'bg-slate-300'} transition-all`}
-                  />
-                ))}
-              </div>
+          <div class="mt-4 space-y-3">
+            <input name="nama" required class="w-full p-3 border rounded-lg" placeholder="Nama lengkap" />
+            <div class="grid grid-cols-2 gap-2">
+              <input name="usia" required class="p-3 border rounded-lg" placeholder="Usia" />
+              <input name="kota" class="p-3 border rounded-lg" placeholder="Kota / Zona Waktu" />
             </div>
+            <select name="mode" required class="w-full p-3 border rounded-lg">
+              <option value="">Pilih mode belajar</option>
+              <option>Online (Zoom/Meet)</option>
+              <option>Offline (ke lokasi / coach ke rumah)</option>
+            </select>
+            <select name="level" required class="w-full p-3 border rounded-lg">
+              <option value="">Level</option>
+              <option>Pemula</option>
+              <option>Pernah belajar</option>
+            </select>
+            <input name="tujuan" class="w-full p-3 border rounded-lg" placeholder="Tujuan (mis: Python dasar / Web Dev)" />
           </div>
-        </div>
-      </section>
 
-      {/* URGENCY SECTION */}
-      <section className="py-20 bg-emerald-600 text-white text-center px-6">
-        <h2 className="text-3xl font-bold mb-4">⚡ Dapatkan Sekarang & Mulai Ubah Cara Kamu Bekerja!</h2>
-        <p className="text-lg mb-4">Harga normal: <span className="line-through opacity-75">Rp149.000</span> → <strong className="text-yellow-300">Rp99.000</strong></p>
-        <p className="mb-6">🎁 Bonus Script Otomatis + Update Gratis untuk 100 pembaca pertama!</p>
-        <Button size="lg" variant="secondary" className="text-lg px-8 py-6">📘 Saya Mau Ebook-nya Sekarang</Button>
-        <p className="mt-4 text-sm opacity-80">*Setelah kuota habis, bonus tidak tersedia lagi.</p>
-      </section>
+          <div class="mt-4 flex gap-2">
+            <button type="submit" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-semibold">KIRIM — Admin WA 24 jam</button>
+            <button type="button" onclick="prefillTrial()" class="py-3 px-3 rounded-xl border">Trial</button>
+          </div>
 
-      {/* PENUTUP */}
-      <section className="py-20 bg-white text-center px-6">
-        <motion.h3 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.6 }} className="text-3xl font-bold mb-6">
-          Bayangkan 1 bulan dari sekarang...
-        </motion.h3>
-        <p className="text-slate-600 max-w-3xl mx-auto mb-10">
-          Kerjaan rutinmu sudah selesai otomatis sebelum kamu mulai meeting pagi. Waktumu bebas, stres berkurang, dan kamu bisa fokus pada hal yang penting.
-        </p>
-        <Button size="lg" className="text-lg px-8 py-6 bg-emerald-600 hover:bg-emerald-700">📥 Dapatkan Ebook Sekarang</Button>
-        <p className="text-sm text-slate-500 mt-6">💸 Garansi 100% uang kembali jika ebook ini tidak memberi manfaat nyata dalam 7 hari.</p>
-      </section>
+          <p id="formNote" class="text-xs text-slate-500 mt-3">Kami tidak membagikan data — hanya untuk konfirmasi & jadwal.</p>
+        </form>
+      </div>
     </div>
-  )
-}
+
+    <!-- tiny toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden">
+      <div class="bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow">Pesan terkirim — Admin akan menghubungi dalam 24 jam.</div>
+    </div>
+
+  </main>
+
+  <script>
+    // simple interactivity without backend
+    const openFormBtn = document.getElementById('openForm')
+    const formWrap = document.getElementById('formWrap')
+    const toast = document.getElementById('toast')
+
+    function openForm(){
+      formWrap.style.display = 'flex'
+      document.body.style.overflow = 'hidden'
+    }
+    function closeForm(){
+      formWrap.style.display = 'none'
+      document.body.style.overflow = ''
+    }
+
+    openFormBtn.addEventListener('click', openForm)
+    // default hidden
+    formWrap.style.display = 'none'
+
+    function handleSubmit(e){
+      e.preventDefault()
+      const data = Object.fromEntries(new FormData(e.target))
+      // send to WhatsApp API
+      const phone = '62563076813' // ganti ke nomor admin kamu
+      const msg = encodeURIComponent(`Halo admin, ada pendaftar baru untuk private coding:%0A%0ANama: ${data.nama}%0AUsia: ${data.usia}%0AKota: ${data.kota}%0AMode Belajar: ${data.mode}%0ALevel: ${data.level}%0ATujuan: ${data.tujuan}`)
+      const wa = `https://api.whatsapp.com/send?phone=${phone}&text=${msg}`
+      window.open(wa, '_blank')
+
+      closeForm()
+      showToast()
+      console.log('Pendaftaran:', data)
+      return false
+    }
+
+    function showToast(){
+      toast.classList.remove('hidden')
+      setTimeout(()=>toast.classList.add('hidden'), 3500)
+    }
+
+    function prefillTrial(){
+      const f = document.getElementById('signupForm')
+      f.nama.value = 'Trial User'
+      f.tujuan.value = 'Trial — cek kecocokan coach'
+    }
+
+    // accessibility: close on ESC
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape') closeForm()
+    })
+  </script>
+</body>
+</html>
