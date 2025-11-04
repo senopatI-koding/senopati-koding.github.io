@@ -131,9 +131,10 @@
       e.preventDefault()
       const data = Object.fromEntries(new FormData(e.target))
       // send to WhatsApp API
-      const phone = '62563076813' // ganti ke nomor admin kamu
+      const phone = '6281234567890' // ganti ke nomor admin kamu
       const msg = encodeURIComponent(`Halo admin, ada pendaftar baru untuk private coding:%0A%0ANama: ${data.nama}%0AUsia: ${data.usia}%0AKota: ${data.kota}%0AMode Belajar: ${data.mode}%0ALevel: ${data.level}%0ATujuan: ${data.tujuan}`)
-      const wa = `https://api.whatsapp.com/send?phone=${phone}&text=${msg}`
+      const base = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'https://api.whatsapp.com/send' : 'https://web.whatsapp.com/send'
+      const wa = `${base}?phone=${phone}&text=${msg}`
       window.open(wa, '_blank')
 
       closeForm()
