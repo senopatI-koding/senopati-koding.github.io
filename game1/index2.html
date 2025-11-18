@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi Islami</title>
+    <!-- 1. Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Memuat Google Font (Poppins) yang lebih ramah anak -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Menggunakan font Poppins sebagai default */
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Style untuk feedback modal */
+        #feedback-modal {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        /* Style untuk tombol kembali */
+        .back-button {
+            /* Tailwind classes applied via @apply */
+            @apply text-blue-500 hover:text-blue-700 transition-colors duration-200;
+        }
+
+        /* Style untuk tombol level */
+        .level-button {
+            /* Tailwind classes applied via @apply */
+            @apply w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-4 px-6 rounded-lg shadow-md border border-gray-200 transition-all duration-200 text-lg;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-indigo-200 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Kontainer Utama Game -->
+    <div id="app" class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 text-center overflow-hidden">
+        <!-- Konten game akan dimuat di sini oleh JavaScript -->
+    </div>
+
+    <!-- Template untuk Modal Feedback (Benar/Salah) -->
+    <div id="feedback-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 transform scale-90">
+        <div id="feedback-content" class="bg-white rounded-2xl p-8 text-center shadow-xl">
+            <!-- Konten feedback (emoji dan teks) akan diisi oleh JS -->
+        </div>
+    </div>
+
+    <script>
+        // --- 1. REFERENSI ELEMEN DOM ---
+        const app = document.getElementById('app');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackContent = document.getElementById('feedback-content');
+
+        // --- 2. DATA GAME (DIPERBARUI) ---
+
+        // Data untuk mode Tebak Huruf Hijaiyah (LENGKAP)
+        const hijaiyahData = [
+            // Level 1: Alif - Ra (10)
+            { letter: 'ا', name: 'Alif' },
+            { letter: 'ب', name: 'Ba' },
+            { letter: 'ت', name: 'Ta' },
+            { letter: 'ث', name: 'Tsa' },
+            { letter: 'ج', name: 'Jim' },
+            { letter: 'ح', name: 'Ha' },
+            { letter: 'خ', name: 'Kha' },
+            { letter: 'د', name: 'Dal' },
+            { letter: 'ذ', name: 'Dzal' },
+            { letter: 'ر', name: 'Ra' },
+            // Level 2: Za - Ghain (9)
+            { letter: 'ز', name: 'Za' },
+            { letter: 'س', name: 'Sin' },
+            { letter: 'ش', name: 'Syin' },
+            { letter: 'ص', name: 'Shad' },
+            { letter: 'ض', name: 'Dhad' },
+            { letter: 'ط', name: 'Tha' },
+            { letter: 'ظ', name: 'Zha' },
+            { letter: 'ع', name: 'Ain' },
+            { letter: 'غ', name: 'Ghain' },
+            // Level 3: Fa - Ya (10)
+            { letter: 'ف', name: 'Fa' },
+            { letter: 'ق', name: 'Qaf' },
+            { letter: 'ك', name: 'Kaf' },
+            { letter: 'ل', name: 'Lam' },
+            { letter: 'م', name: 'Mim' },
+            { letter: 'ن', name: 'Nun' },
+            { letter: 'و', name: 'Waw' },
+            { letter: 'ه', name: 'Ha (bulat)' },
+            { letter: 'ء', name: 'Hamzah' },
+            { letter: 'ي', name: 'Ya' }
+        ];
+
+        // Data untuk mode Hafalan Doa Harian (DITAMBAH)
+        const doaData = [
+            { arti: "Doa Sebelum Makan", doaText: "اللَّهُمَّ بَARِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ", roman: "Allahumma barik lana fima razaqtana waqina adzabannar" },
+            { arti: "Doa Sebelum Tidur", doaText: "بِاسْمِكَ اللَّهُمَّ أَحْيَا وَأَمُوتُ", roman: "Bismika Allahumma ahya wa amut" },
+            { arti: "Doa Masuk Kamar Mandi", doaText: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ", roman: "Allahumma inni a'udzubika minal khubutsi wal khabaits" },
+            { arti: "Doa Untuk Orang Tua", doaText: "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا", roman: "Rabbighfir li, wa li walidayya, warham huma kama rabbayani saghira" },
+            { arti: "Doa Sebelum Belajar", doaText: "رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا", roman: "Rabbi zidni 'ilman warzuqni fahman" },
+            { arti: "Doa Keluar Rumah", doaText: "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", roman: "Bismillahi tawakkaltu 'alallah, la haula wa la quwwata illa billah" }
+        ];
+
+        // (BARU) Data untuk Kuis Cerdas Islami
+        const rukunData = [
+            { question: "Ada berapa Rukun Iman?", options: ["6", "5", "10"], answer: "6" },
+            { question: "Ada berapa Rukun Islam?", options: ["5", "6", "3"], answer: "5" },
+            { question: "Rukun Iman yang pertama adalah...", options: ["Iman kepada Allah", "Iman kepada Malaikat", "Iman kepada Rasul"], answer: "Iman kepada Allah" },
+            { question: "Rukun Islam yang pertama adalah...", options: ["Mengucap Syahadat", "Shalat", "Puasa"], answer: "Mengucap Syahadat" },
+            { question: "Rukun Islam yang ketiga adalah...", options: ["Zakat", "Puasa", "Haji"], answer: "Zakat" },
+            { question: "Iman kepada Hari Akhir adalah Rukun Iman ke...", options: ["5", "6", "4"], answer: "5" },
+            { question: "Shalat adalah Rukun Islam ke...", options: ["2", "1", "3"], answer: "2" },
+            { question: "Percaya pada Kitab-kitab Allah adalah Rukun Iman ke...", options: ["3", "4", "2"], answer: "3" }
+        ];
+
+        // --- 3. GAME STATE (KONDISI GAME) ---
+        let currentMode = null; // 'hijaiyah', 'doa', or 'rukun'
+        let currentLevel = null; // 1, 2, or 3 (for hijaiyah)
+        let score = 0;
+        let questions = [];
+        let currentQuestionIndex = 0;
+
+        // --- 4. FUNGSI UTAMA GAME ---
+
+        /**
+         * Fungsi untuk mengucapkan teks menggunakan Web Speech API
+         * @param {string} text - Teks yang akan diucapkan
+         * @param {string} lang - Kode bahasa (e.g., 'id-ID', 'ar-SA')
+         */
+        function speak(text, lang = 'id-ID') {
+            try {
+                if (!('speechSynthesis' in window)) {
+                    console.warn("Speech synthesis tidak didukung di browser ini.");
+                    return;
+                }
+                // Hentikan suara sebelumnya jika ada
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                utterance.rate = (lang === 'ar-SA') ? 0.7 : 0.9; // Perlambat suara Arab
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.error("Gagal menjalankan speech synthesis:", error);
+            }
+        }
+
+        /**
+         * Fungsi untuk mengacak urutan array (Fisher-Yates shuffle)
+         * @param {Array} array - Array yang akan diacak
+         */
+        function shuffleArray(array) {
+            let newArray = [...array]; // Salin array
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        /**
+         * Menampilkan Halaman Utama (Menu Pilihan Mode) - (DIPERBARUI)
+         */
+        function renderMainMenu() {
+            app.innerHTML = `
+                <h1 class="text-3xl font-bold text-indigo-700 mb-6">Ayo Belajar Sambil Bermain!</h1>
+                <p class="text-gray-600 mb-8">Pilih permainan yang kamu suka:</p>
+                <div class="space-y-4">
+                    <button onclick="renderHijaiyahMenu()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 text-lg">
+                        Tebak Huruf Hijaiyah
+                    </button>
+                    <button onclick="startGame('doa')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 text-lg">
+                        Hafalan Doa Harian
+                    </button>
+                    <!-- Tombol Baru -->
+                    <button onclick="startGame('rukun')" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 text-lg">
+                        Kuis Cerdas Islami
+                    </button>
+                </div>
+            `;
+        }
+
+        /**
+         * (BARU) Menampilkan Menu Pilihan Level Hijaiyah
+         */
+        function renderHijaiyahMenu() {
+            app.innerHTML = `
+                <h1 class="text-3xl font-bold text-indigo-700 mb-6">Pilih Level Hijaiyah</h1>
+                <div class="space-y-4">
+                    <button onclick="startGame('hijaiyah', 1)" class="level-button">
+                        Level 1 (ا - ر)
+                    </button>
+                    <button onclick="startGame('hijaiyah', 2)" class="level-button">
+                        Level 2 (ز - غ)
+                    </button>
+                    <button onclick="startGame('hijaiyah', 3)" class="level-button">
+                        Level 3 (ف - ي)
+                    </button>
+                </div>
+                <button onclick="renderMainMenu()" class="back-button mt-8">
+                    &larr; Kembali ke Menu Utama
+                </button>
+            `;
+        }
+
+        /**
+         * Memulai Game - (DIPERBARUI)
+         * @param {string} mode - Mode game ('hijaiyah', 'doa', atau 'rukun')
+         * @param {number|null} level - Level spesifik (untuk hijaiyah)
+         */
+        function startGame(mode, level = null) {
+            currentMode = mode;
+            currentLevel = level;
+            score = 0;
+            currentQuestionIndex = 0;
+            
+            // Buat daftar pertanyaan
+            if (mode === 'hijaiyah') {
+                if (level === 1) {
+                    questions = shuffleArray(hijaiyahData.slice(0, 10)); // Alif - Ra
+                } else if (level === 2) {
+                    questions = shuffleArray(hijaiyahData.slice(10, 19)); // Za - Ghain
+                } else if (level === 3) {
+                    questions = shuffleArray(hijaiyahData.slice(19)); // Fa - Ya
+                }
+            } else if (mode === 'doa') {
+                questions = shuffleArray(doaData);
+            } else if (mode === 'rukun') {
+                questions = shuffleArray(rukunData);
+            }
+            
+            // Mulai pertanyaan pertama
+            renderQuestion();
+        }
+
+        /**
+         * Menampilkan pertanyaan berdasarkan mode saat ini - (DIPERBARUI)
+         */
+        function renderQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                renderScoreScreen();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            
+            if (currentMode === 'hijaiyah') {
+                renderHijaiyahQuestion(question);
+            } else if (currentMode === 'doa') {
+                renderDoaQuestion(question);
+            } else if (currentMode === 'rukun') {
+                renderRukunQuestion(question);
+            }
+        }
+
+        /**
+         * Menampilkan pertanyaan Tebak Huruf Hijaiyah - (DIPERBARUI)
+         */
+        function renderHijaiyahQuestion(question) {
+            const correctAnswer = question.name;
+            
+            // Tentukan data level saat ini untuk pilihan yang salah
+            const currentLevelData = (currentLevel === 1) ? hijaiyahData.slice(0, 10) :
+                                     (currentLevel === 2) ? hijaiyahData.slice(10, 19) :
+                                     hijaiyahData.slice(19);
+
+            // Ambil 2 jawaban salah secara acak DARI LEVEL YANG SAMA
+            const wrongAnswers = currentLevelData
+                .filter(item => item.name !== correctAnswer)
+                .map(item => item.name);
+            const shuffledWrong = shuffleArray(wrongAnswers).slice(0, 2);
+            
+            // Gabungkan dan acak semua pilihan
+            const options = shuffleArray([correctAnswer, ...shuffledWrong]);
+
+            app.innerHTML = `
+                <p class="text-sm text-gray-500 mb-2">Pertanyaan ${currentQuestionIndex + 1} / ${questions.length}</p>
+                <h2 class="text-2xl font-bold text-indigo-700 mb-6">Huruf apakah ini?</h2>
+                
+                <!-- Kartu Huruf -->
+                <div class="bg-indigo-100 rounded-xl p-8 mb-8 flex justify-center items-center h-48">
+                    <span class="text-9xl text-indigo-800" style="font-family: 'Times New Roman', Times, serif;">${question.letter}</span>
+                </div>
+
+                <!-- Tombol Pilihan -->
+                <div class="space-y-3">
+                    ${options.map(option => `
+                        <button onclick="checkAnswer('${option}', '${correctAnswer}')" class="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-4 px-6 rounded-lg shadow-md border border-gray-200 transition-all duration-200 text-lg">
+                            ${option}
+                        </button>
+                    `).join('')}
+                </div>
+                
+                <!-- Tombol Suara (Opsional) -->
+                <button onclick="speak('${question.letter}', 'ar-SA')" class="mt-6 text-blue-500 hover:text-blue-700">
+                    Dengarkan Suara Huruf
+                </button>
+            `;
+        }
+
+        /**
+         * Menampilkan pertanyaan Hafalan Doa
+         */
+        function renderDoaQuestion(question) {
+            const correctAnswer = question.arti;
+            
+            // Ambil 2 jawaban salah
+            const wrongAnswers = doaData
+                .filter(item => item.arti !== correctAnswer)
+                .map(item => item.arti);
+            const shuffledWrong = shuffleArray(wrongAnswers).slice(0, 2);
+            
+            // Gabungkan dan acak
+            const options = shuffleArray([correctAnswer, ...shuffledWrong]);
+
+            app.innerHTML = `
+                <p class="text-sm text-gray-500 mb-2">Pertanyaan ${currentQuestionIndex + 1} / ${questions.length}</p>
+                <h2 class="text-2xl font-bold text-indigo-700 mb-6">Apa arti dari doa ini?</h2>
+                
+                <!-- Tombol Dengarkan Doa -->
+                <div class="mb-6">
+                    <button onclick="speak('${question.doaText}', 'ar-SA')" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 text-lg">
+                        🔊 Dengarkan Doa
+                    </button>
+                    <p class="text-xs text-gray-500 mt-3 px-4">
+                        (Jika audio tidak terdengar, baca: <span class="font-mono">${question.roman}</span>)
+                    </p>
+                </div>
+
+                <!-- Tombol Pilihan -->
+                <div class="space-y-3">
+                    ${options.map(option => `
+                        <button onclick="checkAnswer('${option}', '${correctAnswer}')" class="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-4 px-6 rounded-lg shadow-md border border-gray-200 transition-all duration-200 text-lg">
+                            ${option}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        /**
+         * (BARU) Menampilkan pertanyaan Kuis Cerdas Islami (Rukun)
+         */
+        function renderRukunQuestion(question) {
+            const correctAnswer = question.answer;
+            const options = shuffleArray(question.options); // Opsi sudah ada di data
+
+            app.innerHTML = `
+                <p class="text-sm text-gray-500 mb-2">Pertanyaan ${currentQuestionIndex + 1} / ${questions.length}</p>
+                
+                <!-- Pertanyaan -->
+                <div class="bg-indigo-100 rounded-xl p-8 mb-8 flex justify-center items-center min-h-[10rem]">
+                    <h2 class="text-2xl font-bold text-indigo-700">${question.question}</h2>
+                </div>
+
+                <!-- Tombol Pilihan -->
+                <div class="space-y-3">
+                    ${options.map(option => `
+                        <button onclick="checkAnswer('${option}', '${correctAnswer}')" class="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-4 px-6 rounded-lg shadow-md border border-gray-200 transition-all duration-200 text-lg">
+                            ${option}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+
+        /**
+         * Memeriksa jawaban yang dipilih pengguna
+         */
+        function checkAnswer(selectedAnswer, correctAnswer) {
+            const isCorrect = (selectedAnswer === correctAnswer);
+            
+            if (isCorrect) {
+                score++;
+                showFeedback(true);
+            } else {
+                showFeedback(false);
+            }
+            
+            // Jeda sejenak sebelum ke pertanyaan berikutnya
+            setTimeout(() => {
+                currentQuestionIndex++;
+                renderQuestion();
+            }, 2000); // Jeda 2 detik
+        }
+
+        /**
+         * Menampilkan modal feedback (Benar/Salah)
+         */
+        function showFeedback(isCorrect) {
+            if (isCorrect) {
+                feedbackContent.innerHTML = `
+                    <div class="text-7xl mb-4">⭐</div>
+                    <h3 class="text-3xl font-bold text-green-600">MasyaAllah!</h3>
+                    <p class="text-lg text-gray-700">Jawabanmu Benar!</p>
+                `;
+                feedbackContent.parentElement.className = "bg-white rounded-2xl p-8 text-center shadow-xl border-4 border-green-400";
+                speak('MasyaAllah! Jawabanmu Benar!', 'id-ID');
+            } else {
+                feedbackContent.innerHTML = `
+                    <div class="text-7xl mb-4">😢</div>
+                    <h3 class="text-3xl font-bold text-red-600">Coba Lagi!</h3>
+                    <p class="text-lg text-gray-700">Jangan menyerah, ya!</p>
+                `;
+                feedbackContent.parentElement.className = "bg-white rounded-2xl p-8 text-center shadow-xl border-4 border-red-400";
+                speak('Ayo coba lagi', 'id-ID');
+            }
+            
+            // Tampilkan modal
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => {
+                feedbackModal.classList.remove('opacity-0', 'scale-90');
+                feedbackModal.classList.add('opacity-100', 'scale-100');
+            }, 10); // sedikit jeda untuk transisi
+
+            // Sembunyikan modal setelah 1.5 detik
+            setTimeout(() => {
+                feedbackModal.classList.remove('opacity-100', 'scale-100');
+                feedbackModal.classList.add('opacity-0', 'scale-90');
+                setTimeout(() => {
+                    feedbackModal.classList.add('hidden');
+                }, 300); // tunggu transisi selesai
+            }, 1500);
+        }
+
+        /**
+         * Menampilkan Halaman Skor Akhir - (DIPERBARUI)
+         */
+        function renderScoreScreen() {
+            let percentage = (score / questions.length) * 100;
+            let badge = '';
+            let message = '';
+
+            if (percentage >= 80) {
+                if (currentMode === 'hijaiyah') badge = 'Ahli Hijaiyah';
+                if (currentMode === 'doa') badge = 'Juara Hafalan';
+                if (currentMode === 'rukun') badge = 'Anak Sholeh/Sholehah'; // Badge baru
+                message = `Luar biasa! Kamu hebat!`;
+            } else if (percentage >= 50) {
+                message = `Bagus! Terus berlatih, ya!`;
+            } else {
+                message = `Jangan patah semangat, ayo coba lagi!`;
+            }
+
+            app.innerHTML = `
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">Permainan Selesai!</h2>
+                <p class="text-lg text-gray-700 mb-6">${message}</p>
+                
+                <div class="bg-gray-100 rounded-xl p-6 mb-6">
+                    <p class="text-lg">Skor Kamu:</p>
+                    <p class="text-6xl font-bold text-indigo-600">${score} <span class="text-3xl text-gray-500">/ ${questions.length}</span></p>
+                </div>
+                
+                ${badge ? `
+                <div class="bg-yellow-100 border-2 border-yellow-300 rounded-xl p-4 mb-6">
+                    <p class="text-2xl">🏆</p>
+                    <p class="font-bold text-yellow-800">Selamat! Kamu mendapat badge:</p>
+                    <p class="text-xl font-semibold text-yellow-900">${badge}</p>
+                </div>
+                ` : ''}
+
+                <button onclick="renderMainMenu()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 text-lg">
+                    Main Lagi
+                </button>
+            `;
+        }
+
+        // --- 5. INISIALISASI ---
+        // Peringatan jika speech synthesis tidak didukung
+        window.onload = () => {
+            if (!('speechSynthesis' in window)) {
+                alert("Browser kamu tidak mendukung fitur suara. Mode 'Hafalan Doa' mungkin tidak akan bersuara.");
+            }
+            renderMainMenu();
+        };
+
+    </script>
+</body>
+</html>
